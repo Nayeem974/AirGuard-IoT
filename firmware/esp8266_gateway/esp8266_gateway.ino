@@ -60,7 +60,8 @@ void reconnectMQTT() {
 }
 
 void setup() {
-  Serial.begin(9600); // Receives telemetry from Arduino Mega 2560 Serial1
+ // ESP8266 UART receives telemetry from Arduino Mega 2560 TX1.
+Serial.begin(9600);
   setupWiFi();
   mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
 }
@@ -71,7 +72,8 @@ void loop() {
   }
   mqttClient.loop();
 
-  // Listen for incoming JSON telemetry lines from Arduino Uno
+ // Read newline-delimited JSON telemetry sent by the Arduino Mega 2560.
+// On the ESP8266, Serial is the UART connected to the Mega's TX1 pin.
   if (Serial.available() > 0) {
     String payload = Serial.readStringUntil('\n');
     payload.trim();
