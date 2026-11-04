@@ -1,0 +1,28 @@
+# Node / frontend build artifacts
+node_modules/
+web/node_modules/
+web/dist/
+web/coverage/
+*.local
+.env
+.env.*
+!.env.example
+
+# Arduino / embedded build artifacts
+build/
+*.hex
+*.elf
+*.bin
+*.o
+*.a
+*.d
+
+# Local secrets and IDE files
+config.h
+secrets.h
+*.swp
+*~
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
