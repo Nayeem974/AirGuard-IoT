@@ -15,8 +15,11 @@ export default function Sparkline({ values, level = 'good' }) {
     })
     .join(' ');
 
+  const area = `0,28 ${polyline} 100,28`;
+
   return (
     <svg className={`sparkline sparkline--${level}`} viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <polygon points={area} fill="currentColor" fillOpacity="0.13" stroke="none" />
       <polyline points={polyline} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
     </svg>
   );

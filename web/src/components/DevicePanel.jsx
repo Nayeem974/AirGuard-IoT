@@ -1,3 +1,5 @@
+import { LINK_LABELS } from '../lib/linkState.js';
+
 const CONNECTION_LABELS = {
   demo: 'Demo',
   connecting: 'Connecting',
@@ -22,6 +24,7 @@ export default function DevicePanel({
   stale,
   now,
   onRetry,
+  link,
 }) {
   const broken = connection.state === 'error' || connection.state === 'offline';
 
@@ -33,7 +36,7 @@ export default function DevicePanel({
       </div>
       <dl className="device-rows">
         <div><dt>Source</dt><dd>{source === 'demo' ? 'Demo (simulated)' : 'Live MQTT'}</dd></div>
-        <div><dt>Connection</dt><dd>{CONNECTION_LABELS[connection.state] ?? 'Unknown'}</dd></div>
+        <div><dt>Connection</dt><dd>{(link && LINK_LABELS[link]) ?? CONNECTION_LABELS[connection.state] ?? 'Unknown'}</dd></div>
         <div><dt>Broker</dt><dd className="mono">{settings.mqtt.url}</dd></div>
         <div><dt>Topic</dt><dd className="mono">{settings.mqtt.topic}</dd></div>
         <div><dt>Last message</dt><dd>{ageLabel(latest, now)}</dd></div>

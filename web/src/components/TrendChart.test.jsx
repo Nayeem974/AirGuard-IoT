@@ -24,4 +24,18 @@ describe('TrendChart', () => {
     fireEvent.click(screen.getByRole('button', { name: '5m' }));
     expect(screen.getByTestId('line')).toHaveAttribute('data-points', '2');
   });
+
+  it('grid layout shows every metric together and applies the range to all', () => {
+    render(<TrendChart readings={readings} now={now} layout="grid" />);
+    expect(screen.getAllByTestId('line').map((el) => el.getAttribute('data-label'))).toEqual(['Air', 'Gas', 'Dust', 'Temperature', 'Humidity']);
+    expect(screen.queryByRole('group', { name: 'Chart metric' })).not.toBeInTheDocument();
+    expect(screen.getAllByTestId('line')[0]).toHaveAttribute('data-points', '3');
+    fireEvent.click(screen.getByRole('button', { name: '5m' }));
+    screen.getAllByTestId('line').forEach((el) => expect(el).toHaveAttribute('data-points', '2'));
+  });
+
+  it('grid layout shows the newest reading by timestamp on each card', () => {
+    render(<TrendChart readings={readings} now={now} layout="grid" />);
+    expect(screen.getByRole('heading', { name: 'Dust' }).closest('article')).toHaveTextContent('10.0');
+  });
 });

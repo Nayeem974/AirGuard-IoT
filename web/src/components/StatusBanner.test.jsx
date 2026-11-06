@@ -20,3 +20,13 @@ test('marks simulated and stale data', () => {
   rerender(<StatusBanner overall="good" latest={latest} demo={false} stale />);
   expect(screen.getByRole('status')).toHaveTextContent('No data from the station');
 });
+
+test.each([
+  ['broker', 'Broker connected'],
+  ['disconnected', 'Disconnected from the broker'],
+  ['error', 'Connection error'],
+  ['connecting', 'Connecting to the broker'],
+])('explains the %s link state when there is no reading', (link, title) => {
+  render(<StatusBanner overall={null} latest={null} link={link} />);
+  expect(screen.getByRole('status')).toHaveTextContent(title);
+});

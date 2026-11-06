@@ -1,4 +1,7 @@
+import { LINK_LABELS } from '../lib/linkState.js';
+
 const LABELS = {
+  ...LINK_LABELS,
   demo: 'Demo',
   connecting: 'Connecting',
   live: 'Live',

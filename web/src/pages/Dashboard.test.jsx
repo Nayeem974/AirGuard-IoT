@@ -40,6 +40,13 @@ describe('Dashboard', () => {
     expect(card).toHaveAttribute('data-unavailable');
   });
 
+  it('does not tag cards as live before any reading arrives', () => {
+    renderDashboard();
+    fireEvent.click(screen.getByRole('button', { name: 'Turn demo off' }));
+    expect(screen.getAllByText('NO DATA').length).toBeGreaterThan(0);
+    expect(screen.queryByText('LIVE')).not.toBeInTheDocument();
+  });
+
   it('raises and clears the danger banner during a simulated leak', () => {
     renderDashboard();
     act(() => vi.advanceTimersByTime(3000));

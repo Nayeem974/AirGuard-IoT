@@ -43,3 +43,22 @@ test('offers retry on connection error', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
   expect(onRetry).toHaveBeenCalled();
 });
+
+test('shows the derived link state instead of a bare "Live"', () => {
+  render(
+    <DevicePanel
+      connection={{ state: 'live' }}
+      settings={DEFAULT_SETTINGS}
+      latest={null}
+      readingsCount={0}
+      rejected={0}
+      source="live"
+      stale={false}
+      now={0}
+      onRetry={vi.fn()}
+      link="broker"
+    />,
+  );
+  expect(screen.getByText('Broker connected')).toBeInTheDocument();
+  expect(screen.queryByText('Live')).not.toBeInTheDocument();
+});

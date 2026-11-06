@@ -78,6 +78,7 @@ export default function Dashboard() {
     settings,
     alerts,
     connection,
+    link,
     rejected,
     now,
     source,
@@ -90,7 +91,7 @@ export default function Dashboard() {
   const activeReadings = readings.filter((reading) => reading.source === activeSource);
   const recent = activeReadings.slice(-20);
   const series = (key) => recent.map((reading) => reading[key]);
-  const tag = demo ? 'SIM' : 'LIVE';
+  const tag = demo ? 'SIM' : latest ? (isStale ? 'STALE' : 'LIVE') : 'NO DATA';
   const { thresholds } = settings;
   const oxygenMissing = source === 'live' && latest?.o2 == null;
   const toggleDemo = () => updateSettings({
@@ -101,7 +102,7 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <h1 className="sr-only">Dashboard</h1>
-      <StatusBanner overall={overall} latest={latest} demo={demo} stale={isStale} />
+      <StatusBanner overall={overall} latest={latest} demo={demo} stale={isStale} link={link} />
       <div className="dashboard-grid">
         <div className="dashboard-main">
           <section className="cards" data-stale={isStale} aria-label="Current readings">
@@ -169,7 +170,7 @@ export default function Dashboard() {
               footnote={oxygenMissing ? 'Phase 2 · pin A2' : 'ME2-O2 sensor'}
             />
           </section>
-          <TrendChart readings={activeReadings} now={now} />
+          <TrendChart readings={activeReadings} now={now} layout="grid" />
         </div>
         <aside className="dashboard-rail" aria-label="Session details">
           <AlertsPanel statuses={statuses} alerts={alerts} />
@@ -183,6 +184,7 @@ export default function Dashboard() {
             stale={isStale}
             now={now}
             onRetry={retry}
+            link={link}
           />
           <section className="panel quick-panel" aria-labelledby="quick-title">
             <div className="panel-head"><h2 id="quick-title">Quick actions</h2></div>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { createDemoGenerator } from '../lib/demo.js';
+import { deriveLink } from '../lib/linkState.js';
 import { LIMITS, RANGES } from '../lib/constants.js';
 import { createMqttConnection } from '../lib/mqttConnection';
 import { parseReading } from '../lib/parseReading.js';
@@ -75,6 +76,7 @@ export function TelemetryProvider({ children, storage, now = DEFAULT_NOW, random
   const [retryKey, setRetryKey] = useState(0);
   const [leakActive, setLeakActive] = useState(false);
   const [demoEpoch, setDemoEpoch] = useState(0);
+  const [liveSession, setLiveSession] = useState(null);
   const [persistStore] = useState(() => {
     let failed = false;
     const listeners = new Set();
@@ -102,6 +104,7 @@ export function TelemetryProvider({ children, storage, now = DEFAULT_NOW, random
   const skipAlertsPersistRef = useRef(false);
 
   const source = settings.demo.enabled ? 'demo' : 'live';
+  const sessionKey = `${retryKey}|${settings.mqtt.url}|${settings.mqtt.topic}`;
 
   useEffect(() => {
     const interval = setInterval(() => setClock(now()), 1000);
@@ -183,13 +186,17 @@ export function TelemetryProvider({ children, storage, now = DEFAULT_NOW, random
   useEffect(() => {
     if (source !== 'live') return undefined;
     let active = true;
+    const key = `${retryKey}|${settings.mqtt.url}|${settings.mqtt.topic}`;
     const mqtt = createMqttConnection({
       url: settings.mqtt.url,
       topic: settings.mqtt.topic,
       onMessage: (raw) => {
         if (!active) return;
         const result = parseReading(raw, { source: 'live', now: now() });
-        if (result.ok) ingest(result.reading);
+        if (result.ok) {
+          ingest(result.reading);
+          setLiveSession(key);
+        }
         else setRejected((count) => count + 1);
       },
       onStatus: (status) => {
@@ -212,6 +219,12 @@ export function TelemetryProvider({ children, storage, now = DEFAULT_NOW, random
   const statuses = latest ? getStatuses(latest, settings.thresholds) : EMPTY_STATUSES;
   const overall = latest ? overallStatus(statuses) : null;
   const isStale = source === 'live' && latest != null && isStaleAt(latest.ts, clock);
+  const link = deriveLink({
+    source,
+    connectionState: connection.state,
+    sessionLive: liveSession === sessionKey && latest != null,
+    stale: isStale,
+  });
 
   const triggerLeak = useCallback(() => {
     const generator = generatorRef.current;
@@ -273,6 +286,7 @@ export function TelemetryProvider({ children, storage, now = DEFAULT_NOW, random
     overall,
     connection: source === 'demo' ? DEMO_CONNECTION : connection,
     rejected,
+    link,
     isStale,
     now: clock,
     source,
@@ -283,7 +297,7 @@ export function TelemetryProvider({ children, storage, now = DEFAULT_NOW, random
     retry,
     storageAvailable,
     persistFailed,
-  }), [alerts, clearHistory, connection, isStale, latest, leakActive, overall, persistFailed, readings, rejected, resetSettings, retry, settings, source, statuses, storageAvailable, triggerLeak, updateSettings, clock]);
+  }), [alerts, clearHistory, connection, isStale, latest, link, leakActive, overall, persistFailed, readings, rejected, resetSettings, retry, settings, source, statuses, storageAvailable, triggerLeak, updateSettings, clock]);
 
   return <TelemetryContext.Provider value={value}>{children}</TelemetryContext.Provider>;
 }

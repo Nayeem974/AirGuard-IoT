@@ -120,7 +120,7 @@ The Mega sends one JSON telemetry line every three seconds through `Serial1` (TX
 2. Turn demo mode off.
 3. Set the broker WebSocket URL to `wss://broker.hivemq.com:8884/mqtt` (or your broker's WebSocket endpoint).
 4. Set the topic to `airguard/telemetry`.
-5. Save settings and confirm the connection status changes to Live when the gateway publishes messages.
+5. Save settings. The status pill should read **Broker connected** once the browser is subscribed, then **Live data** after the gateway publishes its first valid message. If the gateway stops publishing it changes to **Waiting for device data**.
 
 The ESP8266 firmware currently publishes to the public HiveMQ TCP endpoint on port `1883`; the browser connects to the broker's WebSocket endpoint on port `8884`. Both transports use the same broker and topic.
 
